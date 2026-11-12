@@ -2,35 +2,265 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Python + HTML no GitHub Pages</title>
-  <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
-  <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+  <title>Senior SILT WMS • Central de Automação (Chromium)</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #0A2540; color: #fff; padding: 40px; }
-    .card { background: #133356; padding: 25px; border-radius: 8px; max-width: 450px; }
-    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
-    button { background: #E30613; color: #fff; border: none; padding: 10px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-    #retorno { margin-top: 15px; padding: 12px; background: #002244; border-left: 4px solid #22c55e; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { margin: 0; background: #002244; color: #f8fafc; padding: 16px; }
+    .header { background: #0A2540; padding: 14px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #E30613; margin-bottom: 12px; }
+    .header h1 { margin: 0; font-size: 18px; color: #ffffff; }
+    .status-badge { font-size: 13px; font-weight: bold; color: #4ade80; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tab-btn { background: #1e293b; color: #cbd5e1; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .tab-btn.active { background: #E30613; color: #ffffff; }
+    .tab-content { display: none; background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b; }
+    .tab-content.active { display: block; }
+    .card { background: #151e32; padding: 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid #334155; }
+    .card h3 { margin: 0 0 10px 0; font-size: 13px; color: #93c5fd; text-transform: uppercase; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #334155; background: #0b1120; color: #fff; font-size: 13px; }
+    textarea.log-box { height: 190px; font-family: Consolas, monospace; font-size: 12px; color: #38bdf8; background: #030712; }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-start { flex: 1; background: #E30613; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-stop { width: 150px; background: #475569; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn-sec { background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Python + HTML no GitHub</h2>
-    <input type="text" id="lote" placeholder="Digite um lote para o Python processar...">
-    <button py-click="processar">Executar Python</button>
-    <div id="retorno">Aguardando entrada...</div>
+  <div class="header">
+    <h1>⚡ SENIOR SILT WMS • CENTRAL DE AUTOMAÇÃO (CHROMIUM)</h1>
+    <span id="global-status" class="status-badge">● Sistema Pronto</span>
   </div>
 
-  <script type="py">
-    from pyscript import document
+  <div class="tabs">
+    <button class="tab-btn active" onclick="abrirAba('inv', this)">1. Inventário</button>
+    <button class="tab-btn" onclick="abrirAba('sub', this)">2. SubTipo Produto</button>
+    <button class="tab-btn" onclick="abrirAba('vinc', this)">3. Vincular Produto</button>
+  </div>
 
-    def processar(event):
-        valor = document.querySelector("#lote").value.strip().upper()
-        saida = document.querySelector("#retorno")
-        if not valor:
-            saida.innerText = "⚠️ Digite algum lote primeiro."
-        else:
-            saida.innerText = f"✅ Lote {valor} processado pelo Python no GitHub Pages!"
+  <!-- ABA 1: INVENTÁRIO -->
+  <div id="aba-inv" class="tab-content active">
+    <div class="card">
+      <h3>Tipo & Credenciais</h3>
+      <div class="grid-3">
+        <div>
+          <label>Tipo de Inventário</label>
+          <select id="inv-tipo" onchange="mudarTipoInv()">
+            <option value="Inventário Dinâmico">Inventário Dinâmico</option>
+            <option value="Inventário Terceirizado">Inventário Terceirizado</option>
+          </select>
+        </div>
+        <div><label>Usuário</label><input type="text" id="inv-user" value="540956"></div>
+        <div><label>Senha</label><input type="password" id="inv-pass" value="Batatinha123"></div>
+        <div>
+          <label>Armazém</label>
+          <select id="inv-armazem">{% for a in armazens %}<option>{{ a }}</option>{% endfor %}</select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Depositante & Usuários de Contagem</h3>
+      <div class="grid-3">
+        <div>
+          <label>Depositante</label>
+          <select id="inv-dep">{% for d in dep_dinamico %}<option>{{ d }}</option>{% endfor %}</select>
+        </div>
+        <div>
+          <label>Usuário 1</label>
+          <select id="inv-usr1">{% for u in usuarios %}<option>{{ u }}</option>{% endfor %}</select>
+        </div>
+        <div>
+          <label>Usuário 2 (Opcional)</label>
+          <select id="inv-usr2"><option value="">N/A</option>{% for u in usuarios %}<option>{{ u }}</option>{% endfor %}</select>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <input type="text" id="novo-usr-id" placeholder="Novo ID (ex: 540956)" style="max-width:180px;">
+        <input type="text" id="novo-usr-nome" placeholder="Nome do Operador">
+        <button class="btn-sec" onclick="salvarUsuario()">➕ Salvar Usuário</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Log de Execução (Inventário)</h3>
+      <textarea id="log-inv" class="log-box" readonly></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-start" onclick="iniciarInv()">▶ INICIAR INVENTÁRIO</button>
+      <button class="btn-stop" onclick="pararRobo('inv')">⏹ STOP</button>
+    </div>
+  </div>
+
+  <!-- ABA 2: SUBTIPO PRODUTO -->
+  <div id="aba-sub" class="tab-content">
+    <div class="card">
+      <h3>Parâmetros de Login & Subtipo</h3>
+      <div class="grid-3">
+        <div><label>URL</label><input type="text" id="sub-url" value="{{ url_sistema }}"></div>
+        <div><label>Usuário</label><input type="text" id="sub-user" value="540956"></div>
+        <div><label>Senha</label><input type="password" id="sub-pass" value="Batatinha123"></div>
+        <div><label>Armazém</label><select id="sub-armazem">{% for a in armazens %}<option>{{ a }}</option>{% endfor %}</select></div>
+        <div><label>Tipo</label><input type="text" id="sub-tipo" value="PNEU"></div>
+        <div><label>Código Inicial</label><input type="number" id="sub-codigo" value="60"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Lista de Itens a Cadastrar</h3>
+        <textarea id="sub-itens" style="height:190px; font-family:Consolas, monospace;">ITEM A CADASTRAR</textarea>
+        <div style="margin-top:8px;">
+          <button class="btn-sec" onclick="extrairSubtipos()">🔍 Extrair/Limpar Padrão</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Log de Execução e Auditoria</h3>
+        <textarea id="log-sub" class="log-box" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-start" style="background:#208B3A;" onclick="iniciarSub()">▶ INICIAR CADASTRO NO SILT</button>
+      <button class="btn-stop" onclick="pararRobo('sub')">⏹ INTERROMPER</button>
+    </div>
+  </div>
+
+  <!-- ABA 3: VINCULAR PRODUTO -->
+  <div id="aba-vinc" class="tab-content">
+    <div class="card">
+      <h3>Acesso & Planilha de Produtos (.csv / .xlsx)</h3>
+      <div class="grid-3">
+        <div><label>Usuário</label><input type="text" id="vinc-user" value="540956"></div>
+        <div><label>Senha</label><input type="password" id="vinc-pass" value="Batatinha123"></div>
+        <div><label>Armazém</label><select id="vinc-armazem">{% for a in armazens %}<option>{{ a }}</option>{% endfor %}</select></div>
+        <div><label>Arquivo de Produtos</label><input type="file" id="vinc-arquivo" accept=".csv,.xlsx,.xls"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Log de Execução</h3>
+        <textarea id="log-vinc" class="log-box" readonly></textarea>
+      </div>
+      <div class="card">
+        <h3 style="color:#fca5a5;">SubTipos NÃO Encontrados (Copiar)</h3>
+        <textarea id="log-vinc-nao" class="log-box" style="color:#fca5a5;" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-start" style="background:#0078d4;" onclick="iniciarVinc()">▶ INICIAR ATUALIZAÇÃO COMPLETA</button>
+      <button class="btn-stop" onclick="pararRobo('vinc')">⏹ INTERROMPER</button>
+    </div>
+  </div>
+
+  <script>
+    const depDin = {{ dep_dinamico | tojson }};
+    const depTerc = {{ dep_terceirizado | tojson }};
+
+    function abrirAba(nome, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('aba-' + nome).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function mudarTipoInv() {
+      const tipo = document.getElementById('inv-tipo').value;
+      const sel = document.getElementById('inv-dep');
+      const lista = tipo === 'Inventário Terceirizado' ? depTerc : depDin;
+      sel.innerHTML = lista.map(d => `<option>${d}</option>`).join('');
+    }
+
+    async function salvarUsuario() {
+      const id = document.getElementById('novo-usr-id').value;
+      const nome = document.getElementById('novo-usr-nome').value;
+      const res = await fetch('/api/usuarios', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id, nome})
+      }).then(r => r.json());
+      if (res.ok) {
+        ['inv-usr1', 'inv-usr2'].forEach((elId, idx) => {
+          const sel = document.getElementById(elId);
+          sel.innerHTML = (idx === 1 ? '<option value="">N/A</option>' : '') + res.usuarios.map(u => `<option>${u}</option>`).join('');
+        });
+        alert('Usuário salvo!');
+      }
+    }
+
+    async function extrairSubtipos() {
+      const texto = document.getElementById('sub-itens').value;
+      const res = await fetch('/api/subtipo/extrair', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({texto})
+      }).then(r => r.json());
+      if (res.ok) document.getElementById('sub-itens').value = res.itens.join('\n');
+    }
+
+    async function iniciarInv() {
+      const payload = {
+        tipo_inventario: document.getElementById('inv-tipo').value,
+        usuario: document.getElementById('inv-user').value,
+        senha: document.getElementById('inv-pass').value,
+        armazem: document.getElementById('inv-armazem').value,
+        depositante: document.getElementById('inv-dep').value,
+        usr1: document.getElementById('inv-usr1').value,
+        usr2: document.getElementById('inv-usr2').value,
+      };
+      const res = await fetch('/api/iniciar/inventario', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      }).then(r => r.json());
+      if (!res.ok) alert(res.msg);
+    }
+
+    async function iniciarSub() {
+      const payload = {
+        url: document.getElementById('sub-url').value,
+        usuario: document.getElementById('sub-user').value,
+        senha: document.getElementById('sub-pass').value,
+        armazem: document.getElementById('sub-armazem').value,
+        tipo: document.getElementById('sub-tipo').value,
+        codigo: document.getElementById('sub-codigo').value,
+        itens: document.getElementById('sub-itens').value,
+      };
+      const res = await fetch('/api/iniciar/subtipo', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      }).then(r => r.json());
+      if (!res.ok) alert(res.msg);
+    }
+
+    async function iniciarVinc() {
+      const fileInput = document.getElementById('vinc-arquivo');
+      if (!fileInput.files.length) return alert('Selecione a planilha Produtos.csv ou .xlsx!');
+      const fd = new FormData();
+      fd.append('arquivo', fileInput.files[0]);
+      fd.append('usuario', document.getElementById('vinc-user').value);
+      fd.append('senha', document.getElementById('vinc-pass').value);
+      fd.append('armazem', document.getElementById('vinc-armazem').value);
+      const res = await fetch('/api/iniciar/vincular', { method: 'POST', body: fd }).then(r => r.json());
+      if (!res.ok) alert(res.msg);
+    }
+
+    async function pararRobo(aba) {
+      await fetch('/api/stop', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({aba})
+      });
+    }
+
+    // Atualiza logs a cada 1.5s
+    setInterval(async () => {
+      try {
+        const st = await fetch('/api/status').then(r => r.json());
+        document.getElementById('global-status').innerText = st.status_texto;
+        document.getElementById('log-inv').value = st.logs_inv.join('\n');
+        document.getElementById('log-sub').value = st.logs_sub.join('\n');
+        document.getElementById('log-vinc').value = st.logs_vinc.join('\n');
+        document.getElementById('log-vinc-nao').value = st.nao_encontrados_vinc.join('\n-----------------\n');
+      } catch (e) {}
+    }, 1500);
   </script>
 </body>
 </html>
