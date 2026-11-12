@@ -3,33 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Python + HTML no GitHub</title>
-  <!-- Carrega o motor Python (PyScript) direto no navegador -->
-  <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
-  <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #0A2540; color: #fff; padding: 30px; }
-    button { background: #E30613; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    #resultado { margin-top: 20px; padding: 15px; background: #133356; border-radius: 6px; }
+    body { font-family: Arial, sans-serif; background: #0A2540; color: #fff; padding: 40px; }
+    .card { background: #133356; padding: 25px; border-radius: 8px; max-width: 450px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+    button { background: #E30613; color: #fff; border: none; padding: 10px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+    .retorno { margin-top: 15px; padding: 12px; background: #002244; border-left: 4px solid #22c55e; }
   </style>
 </head>
 <body>
-  <h2>Processador Python na Web</h2>
-  <input type="text" id="entrada_lote" placeholder="Digite um código de lote...">
-  <button py-click="processar_lote">Executar Python</button>
-  
-  <div id="resultado">Aguardando execução...</div>
+  <div class="card">
+    <h2>Sistema Python + HTML</h2>
+    <form method="POST">
+      <input type="text" name="lote" placeholder="Digite um lote para o Python processar..." required>
+      <button type="submit">Enviar para o Python</button>
+    </form>
 
-  <!-- Seu código Python rodando direto na página -->
-  <script type="py">
-    from pyscript import document
-
-    def processar_lote(event):
-        texto = document.querySelector("#entrada_lote").value.strip().upper()
-        saida = document.querySelector("#resultado")
-        if not texto:
-            saida.innerText = "⚠️ Digite algum valor primeiro."
-        else:
-            saida.innerText = f"✅ Lote processado pelo Python: {texto} (Total de caracteres: {len(texto)})"
-  </script>
+    {% if resultado %}
+      <div class="retorno">{{ resultado }}</div>
+    {% endif %}
+  </div>
 </body>
 </html>
