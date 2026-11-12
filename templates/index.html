@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema Python + HTML</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0A2540; color: #fff; padding: 40px; }
+    .card { background: #133356; padding: 25px; border-radius: 8px; max-width: 450px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+    button { background: #E30613; color: #fff; border: none; padding: 10px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+    .retorno { margin-top: 15px; padding: 12px; background: #002244; border-left: 4px solid #22c55e; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sistema Python + HTML</h2>
+    <form method="POST">
+      <input type="text" name="lote" placeholder="Digite um lote para o Python processar..." required>
+      <button type="submit">Enviar para o Python</button>
+    </form>
+
+    {% if resultado %}
+      <div class="retorno">{{ resultado }}</div>
+    {% endif %}
+  </div>
+</body>
+</html>
